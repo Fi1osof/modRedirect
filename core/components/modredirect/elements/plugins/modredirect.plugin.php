@@ -42,7 +42,6 @@ if($modx->getOption('friendly_urls')){
         
         case 'OnBeforeDocFormSave':
             
-            $data = $scriptProperties['data'];
             // Пытаемся получить объект документа
             if(
                 !empty($scriptProperties['resource']) 
