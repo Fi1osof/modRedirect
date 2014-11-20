@@ -4,8 +4,8 @@
 if($modx->getOption('friendly_urls')){
 
 
-    if(!function_exists('modRedirect_write_redirect')){
-        function modRedirect_write_redirect($resource){
+    if(!function_exists('_write_redirect')){
+        function _write_redirect($resource){
             global $modx;
             $uri = $resource->uri;
             
@@ -30,7 +30,7 @@ if($modx->getOption('friendly_urls')){
             */
             if($Children = $resource->Children){
                 foreach($Children as $Child){
-                    modRedirect_write_redirect($Child);
+                    _write_redirect($Child);
                 }
             }
             
@@ -42,17 +42,21 @@ if($modx->getOption('friendly_urls')){
         
         case 'OnBeforeDocFormSave':
             
+            $data = $scriptProperties['data'];
             // Пытаемся получить объект документа
-            if(
-                !empty($scriptProperties['resource']) 
-                AND $object = & $scriptProperties['resource']
-                AND $original = $modx->getObject('modResource', $object->id)
-            ){ 
-                
-                // Проверяем совпадает ли УРЛ
-                if($original->uri != $object->getAliasPath($object->alias)){
-                    modRedirect_write_redirect($original);
-                } 
+            
+            $resource = null;
+            foreach($scriptProperties as & $object){
+                if(
+                    is_object($object) 
+                    AND $object instanceof modResource
+                    AND $original = $modx->getObject('modResource', $object->id)
+                ){
+                    if($original->uri != $object->getAliasPath($object->alias)){
+                        _write_redirect($original);
+                    } 
+                    break;
+                }
             }
             
             break;
@@ -112,7 +116,7 @@ if($modx->getOption('friendly_urls')){
                             OR $resource->parent != $node['parent']
                         )
                     ){
-                        modRedirect_write_redirect($resource);
+                        _write_redirect($resource);
                     }
                 }
             }
